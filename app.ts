@@ -15,6 +15,9 @@
         create() {
             this.game.state.add("MainMenuState", MainMenuState, true);
             this.game.state.add("GamePlayState", GamePlayState, false);
+
+            //Center the content
+            this.game.scale.pageAlignHorizontally = true;
         }
     }
 }
