@@ -22,7 +22,7 @@ var GamePlayState = (function (_super) {
         this.gridColors = this.game.add.bitmapData(14 * size, 14 * size);
         for (var i = 0; i < size; i++) {
             for (var j = 0; j < size; j++) {
-                var randColor = this.generateRandomColor();
+                var randColor = this.chooseRandomColor(GamePlayState.BASIC_PALETTE);
                 this.gridColors.rect(i * size, j * size, size, size, randColor);
             }
         }
@@ -39,7 +39,27 @@ var GamePlayState = (function (_super) {
         var randBlue = this.game.rnd.integerInRange(0, 255);
         return Phaser.Color.RGBtoString(randRed, randGreen, randBlue, 0, "#");
     };
+    /*
+    Returns a random color from a given palette.
+    The palette is an array of 6 arrays, each with 3 numbers representing RGB values
+    */
+    GamePlayState.prototype.chooseRandomColor = function (palette) {
+        var choice = this.game.rnd.integerInRange(0, 5);
+        var red = palette[choice][0];
+        var green = palette[choice][1];
+        var blue = palette[choice][2];
+        return Phaser.Color.RGBtoString(red, green, blue, 0, "#");
+    };
     GamePlayState.GRID_SIZE = 16;
+    GamePlayState.BASIC_PALETTE = [
+        [255, 0, 0],
+        [0, 128, 0],
+        [0, 0, 255],
+        [255, 255, 0],
+        [128, 0, 128],
+        [0, 255, 255] //CYAN
+    ];
+    GamePlayState.CURRENT_PALLETTE = GamePlayState.BASIC_PALETTE;
     return GamePlayState;
 })(Phaser.State);
 //# sourceMappingURL=GamePlayState.js.map
