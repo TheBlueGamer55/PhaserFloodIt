@@ -22,7 +22,7 @@ var GamePlayState = (function (_super) {
         this.gridColors = this.game.add.bitmapData(14 * size, 14 * size);
         for (var i = 0; i < size; i++) {
             for (var j = 0; j < size; j++) {
-                var randColor = this.chooseRandomColor(GamePlayState.BASIC_PALETTE);
+                var randColor = this.chooseRandomColor(GamePlayState.CURRENT_PALETTE);
                 this.gridColors.rect(i * size, j * size, size, size, randColor);
             }
         }
@@ -59,7 +59,7 @@ var GamePlayState = (function (_super) {
         [128, 0, 128],
         [0, 255, 255] //CYAN
     ];
-    GamePlayState.CURRENT_PALLETTE = GamePlayState.BASIC_PALETTE;
+    GamePlayState.CURRENT_PALETTE = GamePlayState.BASIC_PALETTE;
     return GamePlayState;
 })(Phaser.State);
 //# sourceMappingURL=GamePlayState.js.map

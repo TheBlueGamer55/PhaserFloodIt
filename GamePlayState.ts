@@ -12,7 +12,7 @@
         [128, 0, 128], //PURPLE
         [0, 255, 255] //CYAN
     ];
-    public static CURRENT_PALLETTE: number[][] = GamePlayState.BASIC_PALETTE;
+    public static CURRENT_PALETTE: number[][] = GamePlayState.BASIC_PALETTE;
 
     constructor() {
         super();
@@ -32,7 +32,7 @@
         this.gridColors = this.game.add.bitmapData(14 * size, 14 * size);
         for (var i = 0; i < size; i++) {
             for (var j = 0; j < size; j++) {
-                var randColor = this.chooseRandomColor(GamePlayState.BASIC_PALETTE);
+                var randColor = this.chooseRandomColor(GamePlayState.CURRENT_PALETTE);
                 this.gridColors.rect(i * size, j * size, size, size, randColor);
             }
         }
