@@ -12,7 +12,65 @@ var GamePlayState = (function (_super) {
     GamePlayState.prototype.create = function () {
         this.generateGrid();
         alert("This is the gameplay screen");
+        //Temporary key input for floodfill testing
+        this.R_KEY = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
+        this.R_KEY.onDown.add(this.fillRed, this);
+        this.G_KEY = this.game.input.keyboard.addKey(Phaser.Keyboard.G);
+        this.G_KEY.onDown.add(this.fillGreen, this);
+        this.B_KEY = this.game.input.keyboard.addKey(Phaser.Keyboard.B);
+        this.B_KEY.onDown.add(this.fillBlue, this);
         this.input.onTap.add(this.generateGrid, this);
+    };
+    GamePlayState.prototype.fillRed = function () {
+        this.fill(0);
+    };
+    GamePlayState.prototype.fillGreen = function () {
+        this.fill(1);
+    };
+    GamePlayState.prototype.fillBlue = function () {
+        this.fill(2);
+    };
+    /*
+    Starts the floodFill algorithm with the given fill color
+    */
+    GamePlayState.prototype.fill = function (fillColor) {
+        var startRGB = this.gridColors.getPixelRGB(0, 0);
+        var startColor = [startRGB.r, startRGB.g, startRGB.b];
+        var marked = [];
+        for (var i = 0; i < GamePlayState.GRID_SIZE; i++) {
+            marked[i] = [];
+            for (var j = 0; j < GamePlayState.GRID_SIZE; j++) {
+                marked[i][j] = false;
+            }
+        }
+        this.floodFill(0, 0, startColor, GamePlayState.CURRENT_PALETTE[fillColor], marked);
+    };
+    /*
+    Custom floodfill algorithm based on the given color in RGB format
+    Flooding starts at (startX, startY) using the color in RGB format
+    */
+    GamePlayState.prototype.floodFill = function (startX, startY, oldColor, newColor, marked) {
+        //Cannot floodfill outside of bitmap dimensions
+        if (startX < 0 || startX > this.gridColors.width || startY < 0 || startY > this.gridColors.height) {
+            return;
+        }
+        var size = GamePlayState.GRID_SIZE;
+        var tileX = startX / size;
+        var tileY = startY / size;
+        var pixelRGB = this.gridColors.getPixelRGB(startX, startY);
+        var pixelColor = [pixelRGB.r, pixelRGB.g, pixelRGB.b];
+        if (!marked[tileX][tileY] && pixelColor[0] == oldColor[0] && pixelColor[1] == oldColor[1] && pixelColor[2] == oldColor[2]) {
+            marked[tileX][tileY] = true;
+            this.gridColors.rect(startX, startY, size, size, Phaser.Color.RGBtoString(newColor[0], newColor[1], newColor[2], 0, "#"));
+            this.gridColors.update();
+            this.floodFill(startX + size, startY, oldColor, newColor, marked);
+            this.floodFill(startX, startY + size, oldColor, newColor, marked);
+            this.floodFill(startX - size, startY, oldColor, newColor, marked);
+            this.floodFill(startX, startY - size, oldColor, newColor, marked);
+        }
+        else {
+            return;
+        }
     };
     /*
     Generates a grid of random colors
@@ -26,6 +84,7 @@ var GamePlayState = (function (_super) {
                 this.gridColors.rect(i * size, j * size, size, size, randColor);
             }
         }
+        this.gridColors.update(); //IMPORTANT - updates the bitmap pixel data
         this.gridBoard = this.game.add.sprite(this.game.width / 2, this.game.height / 2, this.gridColors);
         this.gridBoard.anchor.set(0.5, 0.5);
         this.game.add.existing(this.gridBoard);
