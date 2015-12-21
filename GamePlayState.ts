@@ -3,9 +3,18 @@
     gridColors: Phaser.BitmapData;
     gridBoard: Phaser.Sprite;
 
-    R_KEY: Phaser.Key;
+    buttonGraphics: Phaser.Graphics;
+    fillButtons: Phaser.Rectangle[];
+
+    //Debug input
+    /*R_KEY: Phaser.Key;
     G_KEY: Phaser.Key;
-    B_KEY: Phaser.Key;
+    B_KEY: Phaser.Key;*/
+
+    public static BUTTONS_X: number = 160;
+    public static BUTTONS_Y: number = 400;
+    public static BUTTON_SIZE: number = 48;
+    public static BUTTON_OFFSET: number = 8;
 
     public static GRID_SIZE: number = 16;
     public static BASIC_PALETTE: number[][] = [
@@ -23,23 +32,48 @@
     }
 
     create() {
+        this.fillButtons = [];
+        this.buttonGraphics = this.game.add.graphics(0, 0);
         this.generateGrid();
         alert("This is the gameplay screen");
 
+        //Create the fill buttons
+        this.createButtons();
+
+        this.input.onTap.add(this.mousePressed, this);
+
         //Temporary key input for floodfill testing
-        this.R_KEY = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
+        /*this.R_KEY = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
         this.R_KEY.onDown.add(this.fillRed, this);
 
         this.G_KEY = this.game.input.keyboard.addKey(Phaser.Keyboard.G);
         this.G_KEY.onDown.add(this.fillGreen, this);
 
         this.B_KEY = this.game.input.keyboard.addKey(Phaser.Keyboard.B);
-        this.B_KEY.onDown.add(this.fillBlue, this);
-
-        this.input.onTap.add(this.generateGrid, this);
+        this.B_KEY.onDown.add(this.fillBlue, this);*/
     }
 
-    fillRed() {
+    createButtons() {
+        var bx = GamePlayState.BUTTONS_X;
+        var by = GamePlayState.BUTTONS_Y;
+        var size = GamePlayState.BUTTON_SIZE;
+        var offset = GamePlayState.BUTTON_OFFSET;
+        for (var i = 0; i < GamePlayState.CURRENT_PALETTE.length; i++) {
+            //Create rectangles for button input
+            this.fillButtons[i] = new Phaser.Rectangle(bx + i * (size + offset), by, size, size);
+
+            //Draw buttons for UI
+            var c = Phaser.Color.getColor(GamePlayState.CURRENT_PALETTE[i][0],
+                GamePlayState.CURRENT_PALETTE[i][1],
+                GamePlayState.CURRENT_PALETTE[i][2]);
+            this.buttonGraphics.beginFill(c, 1);
+            this.buttonGraphics.drawRect(bx + i * (size + offset), by, size, size);
+            //this.buttonGraphics.drawRect(320, 240, 21, 21);
+            this.buttonGraphics.endFill();
+        }
+    }
+
+    /*fillRed() {
         this.fill(0);
     }
 
@@ -49,7 +83,7 @@
 
     fillBlue() {
         this.fill(2);
-    }
+    }*/
 
     /*
     Starts the floodFill algorithm with the given fill color
@@ -133,6 +167,16 @@
         var green = palette[choice][1];
         var blue = palette[choice][2];
         return Phaser.Color.RGBtoString(red, green, blue, 0, "#");
+    }
+
+    mousePressed() {
+        //Check if one of the fill buttons was pressed
+        for (var i = 0; i < this.fillButtons.length; i++) {
+            if (this.fillButtons[i].contains(this.game.input.x, this.game.input.y)){
+                this.fill(i);
+                return;
+            }
+        }
     }
 
 }
