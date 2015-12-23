@@ -6,15 +6,35 @@
     buttonGraphics: Phaser.Graphics;
     fillButtons: Phaser.Rectangle[];
 
+    gameOver: boolean;
+    gameWon: boolean;
+
     //Debug input
     /*R_KEY: Phaser.Key;
     G_KEY: Phaser.Key;
     B_KEY: Phaser.Key;*/
 
+    R_KEY: Phaser.Key;
+
     public static BUTTONS_X: number = 160;
     public static BUTTONS_Y: number = 400;
     public static BUTTON_SIZE: number = 48;
     public static BUTTON_OFFSET: number = 8;
+
+    //Dimensions of the rectangles that act as counters
+    public static COUNTER_X: number = 60;
+    public static COUNTER_Y: number = 70;
+    public static COUNTER_WIDTH: number = 20;
+    public static COUNTER_HEIGHT: number = 8;
+    public static COUNTER_OFFSET: number = 4;
+
+    public static MAX_TRIES: number = 25;
+    fillCounter: number;
+
+    counterBitmap: Phaser.BitmapData;
+    counterUI: Phaser.Sprite;
+
+    public static BACKGROUND_COLOR: string = Phaser.Color.RGBtoString(0, 0, 0, 0, "#");
 
     public static GRID_SIZE: number = 16;
     public static BASIC_PALETTE: number[][] = [
@@ -32,15 +52,25 @@
     }
 
     create() {
+        this.game.stage.setBackgroundColor(GamePlayState.BACKGROUND_COLOR);
+        this.gameOver = false;
+        this.gameWon = false;
         this.fillButtons = [];
         this.buttonGraphics = this.game.add.graphics(0, 0);
         this.generateGrid();
-        alert("This is the gameplay screen");
+
+        //Create the rectangles for the counter
+        this.fillCounter = 0;
+        this.createCounter();
 
         //Create the fill buttons
         this.createButtons();
 
         this.input.onTap.add(this.mousePressed, this);
+
+        //Generate new grid when R is pressed
+        this.R_KEY = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
+        this.R_KEY.onDown.add(this.resetGame, this);
 
         //Temporary key input for floodfill testing
         /*this.R_KEY = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
@@ -73,17 +103,24 @@
         }
     }
 
-    /*fillRed() {
-        this.fill(0);
+    createCounter() {
+        var cx = GamePlayState.COUNTER_X;
+        var cy = GamePlayState.COUNTER_Y;
+        var width = GamePlayState.COUNTER_WIDTH;
+        var height = GamePlayState.COUNTER_HEIGHT;
+        var offset = GamePlayState.COUNTER_OFFSET;
+        var maxTries = GamePlayState.MAX_TRIES;
+        this.counterBitmap = this.game.add.bitmapData(width, (offset + height) * maxTries);
+        var color = Phaser.Color.RGBtoString(255, 0, 0, 0, "#");
+        for (var i = 0; i < maxTries; i++) {
+            //console.log(cx + ", " + (cy + (i * (height + offset))) + ", " + width + ", " + height + ",, " + color);
+            //this.counterBitmap.rect(0, 0, 24, 24, color);
+            this.counterBitmap.rect(0, i * (height + offset), width, height, color);
+        }
+        this.counterBitmap.update(); //IMPORTANT - updates the bitmap pixel data
+        this.counterUI = this.game.add.sprite(cx, cy, this.counterBitmap);
+        this.game.add.existing(this.counterUI);
     }
-
-    fillGreen() {
-        this.fill(1);
-    }
-
-    fillBlue() {
-        this.fill(2);
-    }*/
 
     /*
     Starts the floodFill algorithm with the given fill color
@@ -130,6 +167,15 @@
     }
 
     /*
+    Checks if the grid has been filled with only one color
+    */
+    gridFilled() {
+        var isFilled: boolean = false;
+        //Needs to be finished
+        return isFilled;
+    }
+
+    /*
     Generates a grid of random colors
     */
     generateGrid() {
@@ -170,13 +216,46 @@
     }
 
     mousePressed() {
-        //Check if one of the fill buttons was pressed
-        for (var i = 0; i < this.fillButtons.length; i++) {
-            if (this.fillButtons[i].contains(this.game.input.x, this.game.input.y)){
-                this.fill(i);
-                return;
+        //Floodfill only while still not game won or game over
+        if (!this.gameWon && !this.gameOver && this.fillCounter < GamePlayState.MAX_TRIES) {
+            //Check if one of the fill buttons was pressed
+            for (var i = 0; i < this.fillButtons.length; i++) {
+                if (this.fillButtons[i].contains(this.game.input.x, this.game.input.y)) {
+                    this.fill(i);
+                    this.counterBitmap.rect(0,
+                        this.fillCounter * (GamePlayState.COUNTER_HEIGHT + GamePlayState.COUNTER_OFFSET),
+                        GamePlayState.COUNTER_WIDTH,
+                        GamePlayState.COUNTER_HEIGHT, GamePlayState.BACKGROUND_COLOR);
+                    this.counterBitmap.update();
+                    this.fillCounter++;
+                    //If grid full (game won)
+                    if (this.gridFilled()) {
+                        this.gameWon = true;
+                        alert("Game Won!");
+                    }
+                    //If last move was made, check if game won or not
+                    if (this.fillCounter >= GamePlayState.MAX_TRIES) {
+                        if (this.gridFilled()) {
+                            this.gameWon = true;
+                            alert("Game Won!");
+                        }
+                        else{
+                            this.gameOver = true;
+                            alert("Game Over!");
+                        }
+                    }
+                    return;
+                }
             }
         }
+    }
+
+    resetGame() {
+        this.generateGrid();
+        this.createCounter();
+        this.gameWon = false;
+        this.gameOver = false;
+        this.fillCounter = 0;
     }
 
 }
