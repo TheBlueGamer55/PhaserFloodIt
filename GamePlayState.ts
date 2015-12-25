@@ -28,7 +28,7 @@
     public static COUNTER_HEIGHT: number = 8;
     public static COUNTER_OFFSET: number = 4;
 
-    public static MAX_TRIES: number = 25;
+    public static MAX_TRIES: number = 25; 
     fillCounter: number;
 
     counterBitmap: Phaser.BitmapData;
@@ -36,7 +36,8 @@
 
     public static BACKGROUND_COLOR: string = Phaser.Color.RGBtoString(0, 0, 0, 0, "#");
 
-    public static GRID_SIZE: number = 16;
+    public static GRID_SIZE: number = 16; //The size of each individual square on the grid
+    public static GRID_LENGTH: number = 14; //The length of the whole grid in squares
     public static BASIC_PALETTE: number[][] = [
         [255, 0, 0], //RED
         [0, 128, 0], //GREEN
@@ -129,9 +130,9 @@
         var startRGB = this.gridColors.getPixelRGB(0, 0);
         var startColor = [startRGB.r, startRGB.g, startRGB.b];
         var marked: boolean[][] = [];
-        for (var i = 0; i < GamePlayState.GRID_SIZE; i++){
+        for (var i = 0; i <= GamePlayState.GRID_LENGTH; i++){
             marked[i] = [];
-            for (var j = 0; j < GamePlayState.GRID_SIZE; j++){
+            for (var j = 0; j <= GamePlayState.GRID_LENGTH; j++){
                 marked[i][j] = false;
             }
         }
@@ -170,8 +171,19 @@
     Checks if the grid has been filled with only one color
     */
     gridFilled() {
-        var isFilled: boolean = false;
-        //Needs to be finished
+        //Assume the grid is a singular color
+        var isFilled: boolean = true;
+        var mainColor = this.gridColors.getPixelRGB(0, 0);
+        var tempColor;
+        for (var i = 0; i < GamePlayState.GRID_LENGTH; i++){
+            for (var j = 0; j < GamePlayState.GRID_LENGTH; j++) {
+                tempColor = this.gridColors.getPixelRGB(i * GamePlayState.GRID_SIZE, j * GamePlayState.GRID_SIZE);
+                //If even one square is a different color, the grid is not filled
+                if (tempColor.r != mainColor.r || tempColor.g != mainColor.g || tempColor.b != mainColor.b) {
+                    return false;
+                }
+            }
+        }
         return isFilled;
     }
 
@@ -180,7 +192,8 @@
     */
     generateGrid() {
         var size = GamePlayState.GRID_SIZE;
-        this.gridColors = this.game.add.bitmapData(14 * size, 14 * size);
+        var length = GamePlayState.GRID_LENGTH;
+        this.gridColors = this.game.add.bitmapData(length * size, length * size);
         for (var i = 0; i < size; i++) {
             for (var j = 0; j < size; j++) {
                 var randColor = this.chooseRandomColor(GamePlayState.CURRENT_PALETTE);
@@ -231,18 +244,12 @@
                     //If grid full (game won)
                     if (this.gridFilled()) {
                         this.gameWon = true;
-                        alert("Game Won!");
+                        alert("You win! Press R to restart");
                     }
-                    //If last move was made, check if game won or not
-                    if (this.fillCounter >= GamePlayState.MAX_TRIES) {
-                        if (this.gridFilled()) {
-                            this.gameWon = true;
-                            alert("Game Won!");
-                        }
-                        else{
-                            this.gameOver = true;
-                            alert("Game Over!");
-                        }
+                    //If last move was made, already checked if game won, so game is lost
+                    if (!this.gameWon && !this.gameOver && this.fillCounter >= GamePlayState.MAX_TRIES) {
+                        this.gameOver = true;
+                        alert("Game Over! Press R to restart.");
                     }
                     return;
                 }
