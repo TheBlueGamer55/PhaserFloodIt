@@ -8,11 +8,10 @@
 
     gameOver: boolean;
     gameWon: boolean;
+    message: Phaser.Text;
 
-    //Debug input
-    /*R_KEY: Phaser.Key;
-    G_KEY: Phaser.Key;
-    B_KEY: Phaser.Key;*/
+    public static WIN_MESSAGE: string = "You win! Press R to restart.";
+    public static LOSE_MESSAGE: string = "Game over! Press R to restart.";
 
     R_KEY: Phaser.Key;
 
@@ -53,6 +52,11 @@
     }
 
     create() {
+        this.message = this.game.add.text(320, 60, GamePlayState.WIN_MESSAGE,
+            { font: "32px Arial", fill: "#ff0044", align: "center" });
+        this.message.anchor.setTo(0.5, 0.5);
+        this.message.visible = false;
+
         this.game.stage.setBackgroundColor(GamePlayState.BACKGROUND_COLOR);
         this.gameOver = false;
         this.gameWon = false;
@@ -244,12 +248,14 @@
                     //If grid full (game won)
                     if (this.gridFilled()) {
                         this.gameWon = true;
-                        alert("You win! Press R to restart");
+                        this.message.visible = true;
+                        this.message.setText(GamePlayState.WIN_MESSAGE);
                     }
                     //If last move was made, already checked if game won, so game is lost
                     if (!this.gameWon && !this.gameOver && this.fillCounter >= GamePlayState.MAX_TRIES) {
                         this.gameOver = true;
-                        alert("Game Over! Press R to restart.");
+                        this.message.visible = true;
+                        this.message.setText(GamePlayState.LOSE_MESSAGE);
                     }
                     return;
                 }
@@ -258,6 +264,7 @@
     }
 
     resetGame() {
+        this.message.visible = false;
         this.generateGrid();
         this.createCounter();
         this.gameWon = false;

@@ -9,8 +9,8 @@ var Game;
         FloodIt.prototype.preload = function () {
         };
         FloodIt.prototype.create = function () {
-            this.game.state.add("MainMenuState", MainMenuState, true);
-            this.game.state.add("GamePlayState", GamePlayState, false);
+            this.game.state.add("MainMenuState", MainMenuState, false);
+            this.game.state.add("GamePlayState", GamePlayState, true);
             //Center the content
             this.game.scale.pageAlignHorizontally = true;
         };

@@ -5,3 +5,7 @@
 span {
     font-style: italic;
 }
+
+#instructions {
+    text-align: center;
+}
