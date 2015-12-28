@@ -3,7 +3,7 @@
         game: Phaser.Game;
 
         constructor() {
-            this.game = new Phaser.Game(640, 480, Phaser.AUTO, 'content', {
+            this.game = new Phaser.Game(640, 480, Phaser.CANVAS, 'content', {
                 create: this.create, preload: this.preload
             });
         }
@@ -13,7 +13,6 @@
         }
 
         create() {
-            this.game.preserveDrawingBuffer = true; //WebGL fix when updating bitmaps
             this.game.state.add("MainMenuState", MainMenuState, false);
             this.game.state.add("GamePlayState", GamePlayState, true);
 
