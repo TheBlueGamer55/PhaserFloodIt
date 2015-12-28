@@ -9,6 +9,7 @@ var Game;
         FloodIt.prototype.preload = function () {
         };
         FloodIt.prototype.create = function () {
+            this.game.preserveDrawingBuffer = true; //WebGL fix when updating bitmaps
             this.game.state.add("MainMenuState", MainMenuState, false);
             this.game.state.add("GamePlayState", GamePlayState, true);
             //Center the content
