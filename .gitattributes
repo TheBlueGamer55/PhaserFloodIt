@@ -1,3 +1,2 @@
 $ cat .gitattributes
 *.ts linguist-language=TypeScript
-linguist-vendored=true
