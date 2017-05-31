@@ -2,4 +2,4 @@
 
 A FloodIt clone using Phaser and TypeScript.
 
-Can be played here - http://thebluegamer55.github.io/PhaserFloodIt/
+Can be played here - https://svntax.github.io/PhaserFloodIt/
